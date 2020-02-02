@@ -2,12 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
-import { loadCart, removeProduct, changeProductQuantity } from '../../services/cart/actions';
+import {
+  loadCart,
+  removeProduct,
+  changeProductQuantity
+} from '../../services/cart/actions';
 import { updateCart } from '../../services/total/actions';
 import CartProduct from './CartProduct';
 import { formatPrice } from '../../services/util';
 
 import './style.scss';
+import LoadingSpinner from '../LoadingSpinner';
 
 class FloatCart extends Component {
   static propTypes = {
@@ -18,7 +23,7 @@ class FloatCart extends Component {
     removeProduct: PropTypes.func,
     productToRemove: PropTypes.object,
     changeProductQuantity: PropTypes.func,
-    productToChange: PropTypes.object,
+    productToChange: PropTypes.object
   };
 
   state = {
@@ -76,7 +81,7 @@ class FloatCart extends Component {
     }
   };
 
-  proceedToCheckout = () => {
+  proceedToCheckout = cartProducts => {
     const {
       totalPrice,
       productQuantity,
@@ -87,6 +92,7 @@ class FloatCart extends Component {
     if (!productQuantity) {
       alert('Add some product in the cart!');
     } else {
+      console.log(cartProducts);
       alert(
         `Checkout - Subtotal: ${currencyFormat} ${formatPrice(
           totalPrice,
@@ -105,14 +111,24 @@ class FloatCart extends Component {
       this.removeProduct(product);
     }
     updateCart(cartProducts);
-  }
+  };
 
   render() {
-    const { cartTotal, cartProducts, removeProduct, changeProductQuantity } = this.props;
+    const {
+      cartTotal,
+      cartProducts,
+      removeProduct,
+      changeProductQuantity
+    } = this.props;
 
     const products = cartProducts.map(p => {
       return (
-        <CartProduct product={p} removeProduct={removeProduct} changeProductQuantity={changeProductQuantity} key={p.id} />
+        <CartProduct
+          product={p}
+          removeProduct={removeProduct}
+          changeProductQuantity={changeProductQuantity}
+          key={p.id}
+        />
       );
     });
 
@@ -184,8 +200,16 @@ class FloatCart extends Component {
                 )}
               </small>
             </div>
-            <div onClick={() => this.proceedToCheckout()} className="buy-btn">
-              Checkout
+            <div
+              onClick={() => this.proceedToCheckout(cartProducts)}
+              className="buy-btn"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <span>Checkout</span> <LoadingSpinner />
             </div>
           </div>
         </div>
@@ -202,7 +226,9 @@ const mapStateToProps = state => ({
   cartTotal: state.total.data
 });
 
-export default connect(
-  mapStateToProps,
-  { loadCart, updateCart, removeProduct, changeProductQuantity }
-)(FloatCart);
+export default connect(mapStateToProps, {
+  loadCart,
+  updateCart,
+  removeProduct,
+  changeProductQuantity
+})(FloatCart);
